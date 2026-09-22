@@ -96,6 +96,10 @@ fairguard-desktop/recipes/                  <- submodule root (its own git repo)
 So the real recipe path is `fairguard-desktop/recipes/recipes/whatsapp-fairguard/` — the
 submodule root `recipes/`, then the recipes folder `recipes/` inside it.
 
+> **Note:** `whatsapp-fairguard/` is created by Task 5 of the implementation plan. Until then
+> only the official `whatsapp/` recipe exists at that level, so the paths below are the
+> *intended* layout, not yet materialised.
+
 ## What conflicts, and why
 
 The FairGuard rebrand (app name, icons, colours, product strings, the Electron/React shell)
@@ -122,7 +126,7 @@ git rebase --skip          # drop the current commit entirely
 
 Keep the rebrand commit(s) small and focused so each conflict stays easy to resolve.
 
-## FairGuard logic: fix in `wa-guard` first, then re-copy
+## FairGuard logic: fix in wa-guard first, then re-copy
 
 The FairGuard logic itself does **not** live in this repository. It lives in a separate repo:
 
@@ -170,23 +174,29 @@ then is the new gitlink recorded in the outer fork.
 
 1. Fix the logic in `/home/crm-sinergi/ClaudeCode/wa-guard/src/` and commit it there.
 
-2. Re-copy the verbatim set into the submodule's recipe. `badge.css` goes with it — it is
-   copied alongside the `.js` files (keep `badge.css` at the recipe root,
-   `recipes/recipes/whatsapp-fairguard/badge.css`, per Task 6):
+2. Re-copy the verbatim set into the submodule's recipe. The `.js` modules go into the
+   `fairguard/` subdir; `badge.css` goes to the **recipe root** (it sits next to `webview.js`,
+   which does `injectCSS(path.join(__dirname, 'badge.css'))`):
 
    ```bash
-   cp /home/crm-sinergi/ClaudeCode/wa-guard/src/*.js \
-      /home/crm-sinergi/ClaudeCode/wa-guard/src/badge.css \
-      /home/crm-sinergi/ClaudeCode/fairguard-desktop/recipes/recipes/whatsapp-fairguard/fairguard/
+   R=/home/crm-sinergi/ClaudeCode/fairguard-desktop/recipes/recipes/whatsapp-fairguard
+   cp /home/crm-sinergi/ClaudeCode/wa-guard/src/rules.js \
+      /home/crm-sinergi/ClaudeCode/wa-guard/src/hash.js \
+      /home/crm-sinergi/ClaudeCode/wa-guard/src/counter.js \
+      /home/crm-sinergi/ClaudeCode/wa-guard/src/wa-dom.js \
+      /home/crm-sinergi/ClaudeCode/wa-guard/src/badge.js  "$R/fairguard/"
+   cp /home/crm-sinergi/ClaudeCode/wa-guard/src/badge.css  "$R/badge.css"
    ```
 
-3. Commit **inside the submodule** and push it to our recipes fork:
+3. Commit **inside the submodule** and push it to our recipes fork (branch `main`, which is
+   what `.gitmodules` tracks — do NOT invent a separate branch, or the outer fork's
+   `git submodule update` will never see it):
 
    ```bash
    cd /home/crm-sinergi/ClaudeCode/fairguard-desktop/recipes
    git add recipes/whatsapp-fairguard
    git commit -m "fix(fairguard): sync verbatim copy from wa-guard"
-   git push -u origin fairguard-recipes
+   git push origin main
    ```
 
 4. Back in the outer fork, record the new gitlink SHA and push:
@@ -194,7 +204,7 @@ then is the new gitlink recorded in the outer fork.
    ```bash
    cd /home/crm-sinergi/ClaudeCode/fairguard-desktop
    git add recipes
-   git commit -m "chore(recipe): bump gitlink ke commit recipe terbaru"
+   git commit -m "chore(recipe): bump gitlink to latest recipe commit"
    git push
    ```
 

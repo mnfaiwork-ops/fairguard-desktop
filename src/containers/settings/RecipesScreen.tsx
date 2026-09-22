@@ -147,8 +147,6 @@ class RecipesScreen extends Component<IProps, IState> {
             .sort(this._sortByName);
 
     // Custom Website tile is intentionally not offered: locked to WhatsApp only.
-    const customWebsiteRecipe = undefined;
-
     const isLoading =
       recipePreviews.featuredRecipePreviewsRequest.isExecuting ||
       recipePreviews.allRecipePreviewsRequest.isExecuting ||
@@ -161,7 +159,6 @@ class RecipesScreen extends Component<IProps, IState> {
       <ErrorBoundary>
         <RecipesDashboard
           recipes={allRecipes}
-          customWebsiteRecipe={customWebsiteRecipe}
           isLoading={isLoading}
           hasLoadedRecipes={
             recipePreviews.featuredRecipePreviewsRequest.wasExecuted

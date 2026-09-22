@@ -363,7 +363,7 @@ export default class AppStore extends TypedStore {
           'app.welcomeNotification.title',
           // `Welcome to Ferdium ${ferdiumVersion}`,
           // { version: ferdiumVersion },
-          `Welcome to Ferdium ${ferdiumVersion.split('.')[0]}`,
+          `Welcome to FairGuard ${ferdiumVersion.split('.')[0]}`,
           { version: ferdiumVersion.split('.')[0] },
         ),
         {

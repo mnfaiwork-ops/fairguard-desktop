@@ -467,13 +467,13 @@ export default class ServicesStore extends TypedStore {
     redirect = true,
     skipCleanup = false,
   }) {
-    // FairGuard is locked to a single service; refuse to create anything else,
-    // so a deep link or a stale UI cannot install an unwanted recipe.
+    // FairGuard is locked to a single service; silently skip any other recipe
+    // (e.g. legacy imports or the setup assistant offering non-WhatsApp
+    // services) instead of creating it. Same policy as
+    // _showAddServiceInterface: do not route/create, and do not throw.
     if (!isAllowedRecipeId(recipeId)) {
-      debug(`Refusing to create non-allowed recipe "${recipeId}"`);
-      throw new Error(
-        `Refusing to create service for non-allowed recipe "${recipeId}"`,
-      );
+      debug(`Skipping create for non-allowed recipe "${recipeId}"`);
+      return;
     }
 
     if (!this.stores.recipes.isInstalled(recipeId)) {

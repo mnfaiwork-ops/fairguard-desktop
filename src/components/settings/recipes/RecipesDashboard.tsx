@@ -4,7 +4,7 @@ import { Component } from 'react';
 import { WrappedComponentProps, defineMessages, injectIntl } from 'react-intl';
 import withStyles, { WithStylesProps } from 'react-jss';
 import { NavLink } from 'react-router-dom';
-import { FERDIUM_SERVICE_REQUEST } from '../../../config';
+import { ALLOWED_RECIPE_IDS, FERDIUM_SERVICE_REQUEST } from '../../../config';
 import RecipePreview from '../../../models/RecipePreview';
 import SearchInput from '../../ui/SearchInput';
 import Button from '../../ui/button';
@@ -108,7 +108,6 @@ const styles = {
 
 interface IProps extends WithStylesProps<typeof styles>, WrappedComponentProps {
   recipes: RecipePreview[];
-  customWebsiteRecipe?: RecipePreview;
   isLoading: boolean;
   hasLoadedRecipes: boolean;
   showAddServiceInterface: (...args: any[]) => void;
@@ -136,7 +135,6 @@ class RecipesDashboard extends Component<IProps, IState> {
   render() {
     const {
       recipes,
-      customWebsiteRecipe,
       isLoading,
       hasLoadedRecipes,
       showAddServiceInterface,
@@ -183,7 +181,9 @@ class RecipesDashboard extends Component<IProps, IState> {
               navigation and the "missing a service?" request link are not
               rendered. The routes remain functional and degrade to the
               "nothing found" empty state. */}
-          {recipes.length > 1 && (
+          {/* FairGuard ships a single service: hide the filter tabs and the
+              "Missing a service?" link, which only make sense with a catalog. */}
+          {ALLOWED_RECIPE_IDS.length > 1 && (
             <div className="recipes__navigation">
               <NavLink
                 to="/settings/recipes"
@@ -273,17 +273,6 @@ class RecipesDashboard extends Component<IProps, IState> {
                 recipes.length === 0 &&
                 recipeFilter !== 'dev' && (
                   <div className="align-middle settings__empty-state">
-                    {customWebsiteRecipe && customWebsiteRecipe.id && (
-                      <RecipeItem
-                        key={customWebsiteRecipe.id}
-                        recipe={customWebsiteRecipe}
-                        onClick={() =>
-                          showAddServiceInterface({
-                            recipeId: customWebsiteRecipe.id,
-                          })
-                        }
-                      />
-                    )}
                     <p className="settings__empty-state-text">
                       {intl.formatMessage(messages.nothingFound)}
                     </p>

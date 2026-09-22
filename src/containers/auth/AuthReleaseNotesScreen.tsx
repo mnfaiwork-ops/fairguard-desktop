@@ -75,7 +75,7 @@ class AuthReleaseNotesScreen extends Component<IProps, IState> {
         <div className="auth__main--releasenotes">
           <div className="auth__header">
             <span className="auth__header-item">
-              Ferdium {getFerdiumVersion(window.location.href, ferdiumVersion)}{' '}
+              FairGuard {getFerdiumVersion(window.location.href, ferdiumVersion)}{' '}
               {' | '}
             </span>
             <span className="auth__header-item__secondary">

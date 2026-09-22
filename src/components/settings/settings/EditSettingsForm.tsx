@@ -1424,7 +1424,7 @@ class EditSettingsForm extends Component<IProps, IState> {
                   </>
                 )}
                 <p className="settings__message">
-                  <Icon icon={mdiGithub} /> Ferdium is based on{' '}
+                  <Icon icon={mdiGithub} /> FairGuard is based on{' '}
                   <a
                     href={`${GITHUB_FRANZ_URL}/franz`}
                     target="_blank"

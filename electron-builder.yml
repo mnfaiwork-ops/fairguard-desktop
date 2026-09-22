@@ -2,7 +2,7 @@ directories:
   app: ./build
   output: ./out
 
-appId: "org.ferdium.ferdium-app"
+appId: "org.fairguard.fairguard-desktop"
 
 electronFuses:
   enableEmbeddedAsarIntegrityValidation: true
@@ -25,7 +25,7 @@ snapcraft:
       - camera
       - audio-record
       - removable-media
-    description: 'Ferdium is your cross-platform messaging app / former heir to the throne of Austria-Hungary which brings your chat & messaging services together into one application. For enabling webcam access you need to connect "camera" plug to snap, and for microphone with PulseAudio the "audio-record" plug. This can be done in Snap GUI or via command: `snap connect ferdium:camera; snap connect ferdium:audio-record`.'
+    description: 'FairGuard is a chat speed coach for organic WhatsApp numbers, bringing your messaging services together into one application.'
 
 nsis:
   perMachine: false
@@ -35,7 +35,7 @@ nsis:
 
 portable:
   artifactName: "${productName}-${os}-Portable-${version}-${arch}.${ext}"
-  unpackDirName: "Ferdium-Unpacked"
+  unpackDirName: "FairGuard-Unpacked"
 
 dmg:
   background: ./build-helpers/images/dmgInstaller.tiff
@@ -63,7 +63,7 @@ rpm:
 afterSign: ./build-helpers/notarize.js
 
 protocols:
-  name: Ferdium
+  name: FairGuard
   schemes: [ferdium]
 
 asarUnpack:
@@ -106,17 +106,17 @@ win:
       arch: [arm64]
   # The name of the CN appearing in the certificate must be present in the publisherName list below
   signtoolOptions:
-    publisherName: ["Ferdium Contributors", "Ambroise Grau"]
+    publisherName: ["FairGuard"]
   # Remove the verification for a signature to allow auto-update without signed certificate
   verifyUpdateCodeSignature: false
 
 linux:
   icon: ./build-helpers/images/icons
   category: Network;InstantMessaging;
-  executableName: ferdium
+  executableName: fairguard
   synopsis: "Messaging app for WhatsApp, Slack, Telegram, Gmail, Google Chat, and many more."
-  # Note: Please keep the description as a single-line string, as this will become the Comment in the ferdium.desktop Linux launcher file, which requires a single line.
-  description: 'Desktop app bringing all your messaging services into one installable'
+  # Note: Please keep the description as a single-line string, as this will become the Comment in the fairguard.desktop Linux launcher file, which requires a single line.
+  description: 'FairGuard — coach kecepatan chat untuk nomor WhatsApp organik.'
   artifactName: "${productName}-${os}-${version}.${ext}"
   target:
     - target: AppImage

@@ -82,12 +82,12 @@ export default class TrayIcon {
             ? getTranslatedText(
                 tray.currentLocale,
                 'tray.hideFerdium',
-                'Hide Ferdium',
+                'Hide FairGuard',
               )
             : getTranslatedText(
                 tray.currentLocale,
                 'tray.showFerdium',
-                'Show Ferdium',
+                'Show FairGuard',
               ),
         click() {
           tray._toggleWindow();
@@ -114,7 +114,7 @@ export default class TrayIcon {
         label: getTranslatedText(
           tray.currentLocale,
           'tray.quitFerdium',
-          'Quit Ferdium',
+          'Quit FairGuard',
         ),
         click() {
           app.quit();
@@ -185,7 +185,7 @@ export default class TrayIcon {
     }
 
     this.tray = new Tray(this._getAsset('tray', INDICATOR_TRAY_PLAIN));
-    this.tray.setToolTip('Ferdium');
+    this.tray.setToolTip('FairGuard');
 
     this.trayMenu = Menu.buildFromTemplate(this.trayMenuTemplate(this));
 

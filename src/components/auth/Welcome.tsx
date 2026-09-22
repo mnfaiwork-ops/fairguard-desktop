@@ -34,7 +34,7 @@ const messages = defineMessages({
   },
   serverless: {
     id: 'services.serverless',
-    defaultMessage: 'Use Ferdium without an Account',
+    defaultMessage: 'Use FairGuard without an Account',
   },
 });
 

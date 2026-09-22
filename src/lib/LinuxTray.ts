@@ -112,7 +112,7 @@ class StatusNotifierItem extends dbus.interface.Interface {
   }
 
   get Title(): string {
-    return 'Ferdium';
+    return 'FairGuard';
   }
 
   get Status(): string {
@@ -156,7 +156,7 @@ class StatusNotifierItem extends dbus.interface.Interface {
   }
 
   get ToolTip(): [string, unknown[], string, string] {
-    return ['', [], 'Ferdium', ''];
+    return ['', [], 'FairGuard', ''];
   }
 
   get ItemIsMenu(): boolean {

@@ -30,7 +30,7 @@ const messages = defineMessages({
   },
   warning: {
     id: 'changeserver.warning',
-    defaultMessage: 'Extra settings offered by Ferdium will not be saved',
+    defaultMessage: 'Extra settings offered by FairGuard will not be saved',
   },
   customServerLabel: {
     id: 'changeserver.customServerLabel',

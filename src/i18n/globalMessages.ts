@@ -64,7 +64,7 @@ export default defineMessages({
   },
   quitConfirmation: {
     id: 'global.quitConfirmation',
-    defaultMessage: 'Do you really want to quit Ferdium?',
+    defaultMessage: 'Do you really want to quit FairGuard?',
   },
   downloads: {
     id: 'global.downloads',

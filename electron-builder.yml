@@ -98,14 +98,13 @@ mac:
 win:
   artifactName: "${productName}-${os}-Installer-${version}-${arch}.${ext}"
   icon: ./build-helpers/images/icon.ico
+  # Windows: hanya x64 (sesuai kebutuhan). ia32/arm64/zip dibuang supaya
+  # artefak ramping (~1.6 GB -> jauh lebih kecil) dan build lebih cepat.
   target:
     - target: nsis
-      arch: [x64, ia32, arm64]
+      arch: [x64]
     - target: portable
-      arch: [x64, ia32, arm64]
-    # Temporary ARM64 ZIP build
-    - target: zip
-      arch: [arm64]
+      arch: [x64]
   # The name of the CN appearing in the certificate must be present in the publisherName list below
   signtoolOptions:
     publisherName: ["FairGuard"]

@@ -85,7 +85,7 @@ export const serverName = (): string => {
       break;
     }
     case LIVE_FERDIUM_API: {
-      nameServer = 'Ferdium';
+      nameServer = 'FairGuard';
       break;
     }
     case noServerFerdi: {

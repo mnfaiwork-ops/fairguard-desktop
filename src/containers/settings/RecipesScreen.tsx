@@ -8,18 +8,16 @@ import type { StoresProps } from '../../@types/ferdium-components.types';
 import RecipesDashboard from '../../components/settings/recipes/RecipesDashboard';
 import ErrorBoundary from '../../components/util/ErrorBoundary';
 import withParams from '../../components/util/WithParams';
-import { FERDIUM_DEV_DOCS } from '../../config';
+import { FERDIUM_DEV_DOCS, isAllowedRecipeId } from '../../config';
 import { userDataRecipesPath } from '../../environment-remote';
 import { asarRecipesPath } from '../../helpers/asar-helpers';
 import { openPath } from '../../helpers/url-helpers';
 import type Recipe from '../../models/Recipe';
 import RecipePreview from '../../models/RecipePreview';
 
-// FairGuard is locked to a single service. The recipe catalog stays intact;
-// we only narrow what the Add-Service UI offers.
-const ALLOWED_RECIPE_IDS = new Set(['whatsapp-fairguard']);
-const isAllowedRecipe = (r: { id?: string }) =>
-  ALLOWED_RECIPE_IDS.has(r.id ?? '');
+// FairGuard is locked to a single service (see ALLOWED_RECIPE_IDS in config).
+// The recipe catalog stays intact; we only narrow what the Add-Service UI offers.
+const isAllowedRecipe = (r: { id?: string }) => isAllowedRecipeId(r.id);
 
 interface IProps extends Partial<StoresProps> {
   params: Params;

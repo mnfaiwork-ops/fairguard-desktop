@@ -561,6 +561,13 @@ export const TODOS_PARTITION_ID = 'persist:todos';
 
 export const CUSTOM_WEBSITE_RECIPE_ID = 'franz-custom-website';
 
+// FairGuard ships a single service. The full recipe catalog stays on disk (so
+// upstream recipe syncs keep working); this only locks which recipes may be
+// offered/installed. Single source of truth for the UI list and the store guards.
+export const ALLOWED_RECIPE_IDS: readonly string[] = ['whatsapp-fairguard'];
+export const isAllowedRecipeId = (recipeId?: string | null): boolean =>
+  ALLOWED_RECIPE_IDS.includes(recipeId ?? '');
+
 export const DEFAULT_SERVICE_ORDER = 99; // something high enough that it gets added to the end of the already-added services on the left sidebar
 
 export const SPLIT_COLUMNS_MIN = 1;

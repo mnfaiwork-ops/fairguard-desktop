@@ -5,6 +5,7 @@ import semver from 'semver';
 import type { Stores } from '../@types/stores.types';
 import type { Actions } from '../actions/lib/actions';
 import type { ApiInterface } from '../api';
+import { isAllowedRecipeId } from '../config';
 import { asarRecipesPath } from '../helpers/asar-helpers';
 import matchRoute from '../helpers/routing-helpers';
 import type Recipe from '../models/Recipe';
@@ -153,6 +154,14 @@ export default class RecipesStore extends TypedStore {
       matchRoute('/settings/services/add/:id', router.location.pathname);
     if (match) {
       const recipeId = match.id;
+
+      // FairGuard is locked to a single service; never auto-install from a URL
+      // for anything else.
+      if (!isAllowedRecipeId(recipeId)) {
+        debug(`Recipe ${recipeId} is not an allowed recipe; redirecting`);
+        router.push('/settings/recipes');
+        return;
+      }
 
       if (!this.stores.recipes.isInstalled(recipeId)) {
         router.push('/settings/recipes');

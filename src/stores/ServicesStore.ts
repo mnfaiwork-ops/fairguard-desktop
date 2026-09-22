@@ -8,7 +8,7 @@ import ms from 'ms';
 import type { Stores } from '../@types/stores.types';
 import type { Actions } from '../actions/lib/actions';
 import type { ApiInterface } from '../api';
-import { DEFAULT_SERVICE_SETTINGS, KEEP_WS_LOADED_USID } from '../config';
+import { DEFAULT_SERVICE_SETTINGS, KEEP_WS_LOADED_USID, isAllowedRecipeId } from '../config';
 import { ferdiumVersion } from '../environment-remote';
 import { workspaceStore } from '../features/workspaces';
 import { writeTextToClipboard } from '../helpers/clipboard-helpers';
@@ -448,6 +448,11 @@ export default class ServicesStore extends TypedStore {
   }
 
   async _showAddServiceInterface({ recipeId }) {
+    // FairGuard is locked to a single service; refuse to route to anything else.
+    if (!isAllowedRecipeId(recipeId)) {
+      debug(`Refusing to add non-allowed recipe "${recipeId}"`);
+      return;
+    }
     this.stores.router.push(`/settings/services/add/${recipeId}`);
   }
 
@@ -458,6 +463,15 @@ export default class ServicesStore extends TypedStore {
     redirect = true,
     skipCleanup = false,
   }) {
+    // FairGuard is locked to a single service; refuse to create anything else,
+    // so a deep link or a stale UI cannot install an unwanted recipe.
+    if (!isAllowedRecipeId(recipeId)) {
+      debug(`Refusing to create non-allowed recipe "${recipeId}"`);
+      throw new Error(
+        `Refusing to create service for non-allowed recipe "${recipeId}"`,
+      );
+    }
+
     if (!this.stores.recipes.isInstalled(recipeId)) {
       debug(`Recipe "${recipeId}" is not installed, installing recipe`);
       await this.stores.recipes._install({ recipeId });

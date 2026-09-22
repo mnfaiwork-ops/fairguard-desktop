@@ -1,0 +1,143 @@
+# FairGuard Desktop — build installers (Windows + Linux)
+#
+# Dipakai untuk: (1) memverifikasi build tetap hijau, (2) menghasilkan installer
+# .exe (nsis + portable) di runner windows-latest, dan (3) mem-publish hasil ke
+# repo rilis kita (mnfaiwork-ops/fairguard-desktop-releases) saat diberi tag.
+#
+# Cara pakai:
+#   - Otomatis saat push ke `fairguard` / PR  -> build tanpa publish (verifikasi).
+#   - Push tag `v*` (mis. v0.1.0)             -> build + publish ke repo rilis.
+#
+# PRASYARAT (sekali saja, di repo ini → Settings → Secrets and variables → Actions):
+#   - GH_TOKEN / GITHUB_TOKEN bawaan sudah cukup untuk publish ke repo rilis
+#     YANG SAMA. Karena repo rilis BERBEDA, buat secret `RELEASE_TOKEN`
+#     (Personal Access Token klasik, scope `repo`) milik akun mnfaiwork-ops.
+
+name: Build
+
+on:
+  push:
+    branches:
+      - fairguard
+    tags:
+      - 'v*'
+  pull_request:
+    branches:
+      - fairguard
+  workflow_dispatch:
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # Matikan pencarian sertifikat code-sign (kita belum punya sertifikat).
+  CSC_IDENTITY_AUTO_DISCOVERY: false
+  ELECTRON_CACHE: ${{ github.workspace }}/.cache/electron
+  ELECTRON_BUILDER_CACHE: ${{ github.workspace }}/.cache/electron-builder
+  # Hanya token ini yang boleh publish ke repo rilis kita.
+  GH_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+
+jobs:
+  build-linux:
+    name: Linux (deb + AppImage + tar.gz)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11.20.0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24.18.1
+          cache: pnpm
+
+      - name: Cache electron / electron-builder
+        uses: actions/cache@v4
+        with:
+          path: |
+            ${{ env.ELECTRON_CACHE }}
+            ${{ env.ELECTRON_BUILDER_CACHE }}
+          key: ${{ runner.os }}-electron-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-electron-
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build (publish on tag only)
+        run: |
+          if [[ "${{ github.ref }}" == refs/tags/v* ]]; then
+            pnpm build --linux --publish always
+          else
+            pnpm build --linux --publish never
+          fi
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: fairguard-linux
+          if-no-files-found: error
+          path: |
+            out/*.deb
+            out/*.AppImage
+            out/*.tar.gz
+            out/*.snap
+
+  build-windows:
+    name: Windows (nsis + portable)
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11.20.0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24.18.1
+          cache: pnpm
+
+      - name: Cache electron / electron-builder
+        uses: actions/cache@v4
+        with:
+          path: |
+            ${{ env.ELECTRON_CACHE }}
+            ${{ env.ELECTRON_BUILDER_CACHE }}
+          key: ${{ runner.os }}-electron-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-electron-
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build (publish on tag only)
+        shell: bash
+        run: |
+          if [[ "${{ github.ref }}" == refs/tags/v* ]]; then
+            pnpm build --win --publish always
+          else
+            pnpm build --win --publish never
+          fi
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: fairguard-windows
+          if-no-files-found: error
+          path: |
+            out/*.exe
+            out/*.zip

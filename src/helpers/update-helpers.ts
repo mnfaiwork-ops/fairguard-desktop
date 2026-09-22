@@ -48,8 +48,8 @@ export async function getUpdateInfoFromGH(
     const response = await octokit.request(
       'GET /repos/{owner}/{repo}/releases/tags/{tag}',
       {
-        owner: 'ferdium',
-        repo: 'ferdium-app',
+        owner: 'mnfaiwork-ops',
+        repo: 'fairguard-desktop-releases',
         tag: getFerdiumVersion(currentLocation, ferdiumVersion),
       },
     );

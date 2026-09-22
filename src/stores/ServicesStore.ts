@@ -8,7 +8,11 @@ import ms from 'ms';
 import type { Stores } from '../@types/stores.types';
 import type { Actions } from '../actions/lib/actions';
 import type { ApiInterface } from '../api';
-import { DEFAULT_SERVICE_SETTINGS, KEEP_WS_LOADED_USID, isAllowedRecipeId } from '../config';
+import {
+  DEFAULT_SERVICE_SETTINGS,
+  KEEP_WS_LOADED_USID,
+  isAllowedRecipeId,
+} from '../config';
 import { ferdiumVersion } from '../environment-remote';
 import { workspaceStore } from '../features/workspaces';
 import { writeTextToClipboard } from '../helpers/clipboard-helpers';

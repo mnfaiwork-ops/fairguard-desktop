@@ -10,6 +10,8 @@ electronFuses:
 
 publish:
   provider: github
+  owner: mnfaiwork-ops
+  repo: fairguard-desktop-releases
 
 snapcraft:
   base: core24

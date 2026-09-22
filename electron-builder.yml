@@ -116,16 +116,13 @@ linux:
   icon: ./build-helpers/images/icons
   category: Network;InstantMessaging;
   executableName: fairguard
-  synopsis: "Messaging app for WhatsApp, Slack, Telegram, Gmail, Google Chat, and many more."
+  synopsis: "Coach kecepatan chat untuk nomor WhatsApp organik."
   # Note: Please keep the description as a single-line string, as this will become the Comment in the fairguard.desktop Linux launcher file, which requires a single line.
   description: 'FairGuard — coach kecepatan chat untuk nomor WhatsApp organik.'
   artifactName: "${productName}-${os}-${version}.${ext}"
+  # Linux: hanya .deb x86_64 (amd64) yang dibutuhkan.
+  # AppImage/tar.gz/rpm/freebsd/snap dan arch arm64/armv7l dibuang karena
+  # tidak dipakai dan membutuhkan tooling khusus (rpmbuild/snapcraft).
   target:
-    - target: AppImage
     - target: deb
-      arch: [x64, arm64, armv7l]
-    - target: tar.gz
-    - target: rpm
-      arch: [x64, arm64]
-    - target: freebsd
-    - target: snap
+      arch: [x64]

@@ -164,7 +164,7 @@ class TeamDashboard extends Component<IProps> {
                 <img
                   className={classes.image}
                   src="https://cdn.franzinfra.com/announcements/assets/teams.png"
-                  alt="Ferdium for Teams"
+                  alt="FairGuard for Teams"
                 />
               </div>
               <div className={classes.buttonContainer}>

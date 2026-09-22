@@ -645,15 +645,15 @@ app.on('ready', () => {
         arguments: `${extraArgs}--reset-window`,
         iconPath,
         iconIndex: 0,
-        title: 'Move Ferdium to Current Display',
-        description: 'Restore the position and size of Ferdium',
+        title: 'Move FairGuard to Current Display',
+        description: 'Restore the position and size of FairGuard',
       },
       {
         program: process.execPath,
         arguments: `${extraArgs}--quit`,
         iconPath,
         iconIndex: 0,
-        title: 'Quit Ferdium',
+        title: 'Quit FairGuard',
         description: '',
       },
     ]);
@@ -933,7 +933,7 @@ app.on('before-quit', event => {
     selection = dialog.showMessageBoxSync(mainWindow!, {
       type: 'question',
       message: 'Quit',
-      detail: 'Do you really want to quit Ferdium?',
+      detail: 'Do you really want to quit FairGuard?',
       buttons: ['Yes', 'No'],
     });
   }

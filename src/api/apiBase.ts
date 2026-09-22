@@ -49,7 +49,7 @@ export const importExportURL = () => {
 export const serverBase = () => {
   const serverType = (window as any).ferdium.stores.settings.all.app.server;
   const noServerFerdi = 'You are using Ferdi without a server';
-  const noServerFerdium = 'You are using Ferdium without a server';
+  const noServerFerdium = 'You are using FairGuard without a server';
 
   let terms;
   switch (serverType) {
@@ -76,7 +76,7 @@ export const serverBase = () => {
 export const serverName = (): string => {
   const serverType = (window as any).ferdium.stores.settings.all.app.server;
   const noServerFerdi = 'You are using Ferdi without a server';
-  const noServerFerdium = 'You are using Ferdium without a server';
+  const noServerFerdium = 'You are using FairGuard without a server';
 
   let nameServer;
   switch (serverType) {

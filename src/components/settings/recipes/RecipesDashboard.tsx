@@ -179,46 +179,52 @@ class RecipesDashboard extends Component<IProps, IState> {
             autoFocus
             throttle
           />
-          <div className="recipes__navigation">
-            <NavLink
-              to="/settings/recipes"
-              className={() =>
-                recipeFilter === 'featured' ? 'badge badge--primary' : 'badge'
-              }
-              onClick={() => resetSearch()}
-            >
-              {intl.formatMessage(messages.ferdiumPicksRecipes)}
-            </NavLink>
-            <NavLink
-              to="/settings/recipes/all"
-              className={({ isActive }) =>
-                isActive && recipeFilter === 'all'
-                  ? 'badge badge--primary'
-                  : 'badge'
-              }
-              onClick={() => resetSearch()}
-            >
-              {intl.formatMessage(messages.allRecipes)}
-            </NavLink>
-            <NavLink
-              to="/settings/recipes/dev"
-              className={({ isActive }) =>
-                isActive && !searchNeedle ? 'badge badge--primary' : 'badge'
-              }
-              onClick={() => resetSearch()}
-            >
-              {intl.formatMessage(messages.customRecipes)}
-            </NavLink>
-            <a
-              href={FERDIUM_SERVICE_REQUEST}
-              target="_blank"
-              className="link recipes__service-request"
-              rel="noreferrer"
-            >
-              {intl.formatMessage(messages.missingService)}{' '}
-              <Icon icon={mdiOpenInNew} />
-            </a>
-          </div>
+          {/* FairGuard offers a single service, so the featured/all/dev tab
+              navigation and the "missing a service?" request link are not
+              rendered. The routes remain functional and degrade to the
+              "nothing found" empty state. */}
+          {recipes.length > 1 && (
+            <div className="recipes__navigation">
+              <NavLink
+                to="/settings/recipes"
+                className={() =>
+                  recipeFilter === 'featured' ? 'badge badge--primary' : 'badge'
+                }
+                onClick={() => resetSearch()}
+              >
+                {intl.formatMessage(messages.ferdiumPicksRecipes)}
+              </NavLink>
+              <NavLink
+                to="/settings/recipes/all"
+                className={({ isActive }) =>
+                  isActive && recipeFilter === 'all'
+                    ? 'badge badge--primary'
+                    : 'badge'
+                }
+                onClick={() => resetSearch()}
+              >
+                {intl.formatMessage(messages.allRecipes)}
+              </NavLink>
+              <NavLink
+                to="/settings/recipes/dev"
+                className={({ isActive }) =>
+                  isActive && !searchNeedle ? 'badge badge--primary' : 'badge'
+                }
+                onClick={() => resetSearch()}
+              >
+                {intl.formatMessage(messages.customRecipes)}
+              </NavLink>
+              <a
+                href={FERDIUM_SERVICE_REQUEST}
+                target="_blank"
+                className="link recipes__service-request"
+                rel="noreferrer"
+              >
+                {intl.formatMessage(messages.missingService)}{' '}
+                <Icon icon={mdiOpenInNew} />
+              </a>
+            </div>
+          )}
 
           {isLoading ? (
             <Loader />

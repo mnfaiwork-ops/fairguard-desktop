@@ -8,13 +8,18 @@ import type { StoresProps } from '../../@types/ferdium-components.types';
 import RecipesDashboard from '../../components/settings/recipes/RecipesDashboard';
 import ErrorBoundary from '../../components/util/ErrorBoundary';
 import withParams from '../../components/util/WithParams';
-import { CUSTOM_WEBSITE_RECIPE_ID, FERDIUM_DEV_DOCS } from '../../config';
+import { FERDIUM_DEV_DOCS } from '../../config';
 import { userDataRecipesPath } from '../../environment-remote';
-import { communityRecipesStore } from '../../features/communityRecipes';
 import { asarRecipesPath } from '../../helpers/asar-helpers';
 import { openPath } from '../../helpers/url-helpers';
 import type Recipe from '../../models/Recipe';
 import RecipePreview from '../../models/RecipePreview';
+
+// FairGuard is locked to a single service. The recipe catalog stays intact;
+// we only narrow what the Add-Service UI offers.
+const ALLOWED_RECIPE_IDS = new Set(['whatsapp-fairguard']);
+const isAllowedRecipe = (r: { id?: string }) =>
+  ALLOWED_RECIPE_IDS.has(r.id ?? '');
 
 interface IProps extends Partial<StoresProps> {
   params: Params;
@@ -121,34 +126,30 @@ class RecipesScreen extends Component<IProps, IState> {
         ...this.createPreviews(this.customRecipes),
       ]);
     } else if (filter === 'dev') {
-      recipeFilter = communityRecipesStore.communityRecipes;
+      // FairGuard is locked to WhatsApp only: no dev/community recipes.
+      recipeFilter = [];
     } else {
       recipeFilter = recipePreviews.featured;
     }
-    recipeFilter = [...recipeFilter].sort(this._sortByName);
+    // Restrict every filter tab to the single allowed service.
+    recipeFilter = [...recipeFilter]
+      .filter(r => isAllowedRecipe(r))
+      .sort(this._sortByName);
 
     const { needle } = this.state;
     const allRecipes =
       needle === null
         ? recipeFilter
-        : this.prepareRecipes([
-            // All search recipes from server
-            ...recipePreviews.searchResults,
-            // All search recipes from local recipes
-            ...this.createPreviews(
-              this.customRecipes.filter(
-                (recipe: Recipe) =>
-                  recipe.name.toLowerCase().includes(needle.toLowerCase()) ||
-                  (recipe.aliases || []).some(alias =>
-                    alias.toLowerCase().includes(needle.toLowerCase()),
-                  ),
-              ),
-            ),
-          ]).sort(this._sortByName);
+        : this.prepareRecipes(
+            // All search recipes from server (restricted to allowed services);
+            // local custom recipes are intentionally NOT offered under FairGuard.
+            recipePreviews.searchResults.filter(r => isAllowedRecipe(r)),
+          )
+            .filter(r => isAllowedRecipe(r))
+            .sort(this._sortByName);
 
-    const customWebsiteRecipe = recipePreviews.all.find(
-      service => service.id === CUSTOM_WEBSITE_RECIPE_ID,
-    );
+    // Custom Website tile is intentionally not offered: locked to WhatsApp only.
+    const customWebsiteRecipe = undefined;
 
     const isLoading =
       recipePreviews.featuredRecipePreviewsRequest.isExecuting ||

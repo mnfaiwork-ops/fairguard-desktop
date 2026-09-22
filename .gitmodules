@@ -1,5 +1,4 @@
 [submodule "recipes"]
 	path = recipes
-	url = https://github.com/ferdium/ferdium-recipes.git
-	ignore = all
+	url = https://github.com/mnfaiwork-ops/ferdium-recipes.git
 	branch = main

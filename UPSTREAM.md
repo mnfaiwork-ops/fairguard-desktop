@@ -1,8 +1,22 @@
-# Staying in Sync with Upstream Ferdium
+# Staying in Sync with Upstream Ferdium (and the `wa-guard` copy source)
 
 This repository is a fork of [`ferdium/ferdium-app`](https://github.com/ferdium/ferdium-app) (Apache-2.0).
 It is a FairGuard-branded desktop app (WhatsApp only) that plants the FairGuard coach
 badge through the Ferdium recipe mechanism.
+
+Keeping this app healthy means tracking **two** upstreams, not one:
+
+1. **`ferdium/ferdium-app`** — the Electron/React shell we forked (this repo).
+2. **`wa-guard`** — the separate repository that is the *source of truth* for the FairGuard
+   logic copied verbatim into our recipe (see [below](#fairguard-logic-fix-in-wa-guard-first-then-re-copy)).
+   It is **not** merged or rebased; it is copied.
+
+A third repo sits underneath this one as a git submodule (`recipes/`) and is where the recipe
+files actually live — see [The `recipes/` submodule](#the-recipes-submodule).
+
+All absolute paths below are the canonical locations on the internal **CRM-Sinergi** machine.
+If you are working on another clone, substitute your own clone root for
+`/home/crm-sinergi/ClaudeCode/`.
 
 - **Fork base:** tag `v7.2.3` (commit `a44bc7d8`)
 - **Fork base date:** 2026-09-22
@@ -40,6 +54,48 @@ git push --force-with-lease origin fairguard
 push if someone else has updated `origin/fairguard` since your last fetch, which protects
 against clobbering a teammate's work.
 
+> **Recipes are not updated by this rebase.** `recipes/` is a git submodule (a separate
+> repository — see [The `recipes/` submodule](#the-recipes-submodule)). `git rebase upstream/develop`
+> moves the *outer* commit pointer only; it does **not** pull in recipe content. To refresh
+> recipe contents you must work *inside* the submodule.
+
+## The `recipes/` submodule
+
+`recipes/` is **not** a normal directory in this repo — it is a **git submodule**. Confirm it:
+
+```bash
+cat .gitmodules
+#   [submodule "recipes"]
+#           path = recipes
+#           url = https://github.com/mnfaiwork-ops/ferdium-recipes.git
+#           branch = main
+
+git ls-files -s recipes
+#   160000 bc708f6a... 0  recipes      <-- mode 160000 == a gitlink, not a tree
+```
+
+The consequences are easy to trip over:
+
+- The recipe files live in the **submodule's** own repository, not in `fairguard-desktop`.
+- Editing `recipes/…` and committing on the outer `fairguard` branch captures **nothing**
+  (at best it records an opaque gitlink while the content stays uncommitted; a later
+  `git submodule update` throws that content away).
+- Committing **inside** the submodule records the recipe content in the recipes repo, and
+  leaves the outer repo with a dirty gitlink that you then commit to record the new SHA.
+
+The submodule is our fork of the Ferdium recipes repo
+(<https://github.com/mnfaiwork-ops/ferdium-recipes.git>, repointed from upstream). Our recipe
+lives at:
+
+```
+fairguard-desktop/recipes/                  <- submodule root (its own git repo)
+└── recipes/                                <- the recipes folder inside the submodule
+    └── whatsapp-fairguard/                 <- our recipe
+```
+
+So the real recipe path is `fairguard-desktop/recipes/recipes/whatsapp-fairguard/` — the
+submodule root `recipes/`, then the recipes folder `recipes/` inside it.
+
 ## What conflicts, and why
 
 The FairGuard rebrand (app name, icons, colours, product strings, the Electron/React shell)
@@ -74,29 +130,76 @@ The FairGuard logic itself does **not** live in this repository. It lives in a s
 /home/crm-sinergi/ClaudeCode/wa-guard/src/
 ```
 
-`wa-guard/src/*.js` is **copied verbatim** into the recipe directory of this fork:
+### What is copied, and what is not
 
+The recipe directory holds files from **two different provenances**. Do not blur the line:
+
+**Copied verbatim from `wa-guard/src/`** — byte-for-byte, including the stylesheet:
+
+| File | Notes |
+| --- | --- |
+| `rules.js` | verbatim |
+| `counter.js` | verbatim |
+| `hash.js` | verbatim |
+| `wa-dom.js` | verbatim |
+| `badge.js` | verbatim |
+| `badge.css` | verbatim — **not a `.js` file, but it must be copied too** |
+
+**Not copied from `wa-guard`** — derived from the official Ferdium *whatsapp* recipe or
+authored directly in the recipe, and maintained there:
+
+- `index.js`, `package.json`, `service.css`, `darkmode.css`, `webview-unsafe.js` — derived
+  from the official Ferdium whatsapp recipe (manifest / plumbing / base styling).
+- `webview.js`, `glue.js`, `settings-panel.js` — authored in the recipe itself.
+
+Do not hand-edit the verbatim set inside the recipe: the next copy overwrites it and the two
+copies drift apart silently. To catch drift in the verbatim set, compare bytes:
+
+```bash
+cmp /home/crm-sinergi/ClaudeCode/wa-guard/src/badge.js \
+    /home/crm-sinergi/ClaudeCode/fairguard-desktop/recipes/recipes/whatsapp-fairguard/fairguard/badge.js
 ```
-recipes/recipes/whatsapp-fairguard/fairguard/
-```
 
-Do not hand-edit FairGuard logic inside the recipe. Any change made only in the copied recipe
-will be overwritten by the next copy, and the two copies will silently drift apart.
+(`cmp` prints nothing when the files are identical.)
 
-**After any FairGuard logic fix, re-copy `wa-guard/src/*.js` into the recipe.** The order
-matters:
+### Corrected copy procedure
+
+**After any FairGuard logic fix, re-copy the verbatim set and commit it inside the submodule.**
+The order matters — the content must be committed *inside* `recipes/` (the submodule), and only
+then is the new gitlink recorded in the outer fork.
 
 1. Fix the logic in `/home/crm-sinergi/ClaudeCode/wa-guard/src/` and commit it there.
-2. Re-copy the files into this fork's recipe:
+
+2. Re-copy the verbatim set into the submodule's recipe. `badge.css` goes with it — it is
+   copied alongside the `.js` files (keep `badge.css` at the recipe root,
+   `recipes/recipes/whatsapp-fairguard/badge.css`, per Task 6):
+
+   ```bash
+   cp /home/crm-sinergi/ClaudeCode/wa-guard/src/*.js \
+      /home/crm-sinergi/ClaudeCode/wa-guard/src/badge.css \
+      /home/crm-sinergi/ClaudeCode/fairguard-desktop/recipes/recipes/whatsapp-fairguard/fairguard/
+   ```
+
+3. Commit **inside the submodule** and push it to our recipes fork:
+
+   ```bash
+   cd /home/crm-sinergi/ClaudeCode/fairguard-desktop/recipes
+   git add recipes/whatsapp-fairguard
+   git commit -m "fix(fairguard): sync verbatim copy from wa-guard"
+   git push -u origin fairguard-recipes
+   ```
+
+4. Back in the outer fork, record the new gitlink SHA and push:
 
    ```bash
    cd /home/crm-sinergi/ClaudeCode/fairguard-desktop
-   cp /home/crm-sinergi/ClaudeCode/wa-guard/src/*.js \
-      recipes/recipes/whatsapp-fairguard/fairguard/
+   git add recipes
+   git commit -m "chore(recipe): bump gitlink ke commit recipe terbaru"
+   git push
    ```
 
-3. Stage, commit, and push the refreshed copy on the `fairguard` branch.
+   The outer commit contains only the pointer bump (`recipes` → new SHA) — the recipe content
+   itself lives in step 3's commit.
 
-Only re-copy `.js` files. Assets and metadata that live only in the recipe (icons, manifest,
-recipe `index.js` / `package.json` plumbing) are maintained directly in this repo and must not
-be overwritten by the copy step.
+Remember: `git rebase upstream/develop` on the outer fork does **not** update recipe contents.
+The submodule is a separate repository, so recipe changes only travel through the submodule.

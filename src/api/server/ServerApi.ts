@@ -25,7 +25,7 @@ import UserModel from '../../models/User';
 
 import sleep from '../../helpers/async-helpers';
 
-import { SERVER_NOT_LOADED } from '../../config';
+import { SERVER_NOT_LOADED, isAllowedRecipeId } from '../../config';
 import { userDataRecipesPath } from '../../environment-remote';
 import { asarRecipesPath } from '../../helpers/asar-helpers';
 import apiBase from '../apiBase';
@@ -412,34 +412,121 @@ export default class ServerApi {
   }
 
   // Recipes Previews
+
+  /**
+   * FairGuard ships a single service and never depends on the upstream Ferdium
+   * recipe directory, which does not know about our bundled recipes. Build the
+   * preview list straight from the recipe catalog packaged inside the app
+   * (`recipes/all.json`), restricted to the allowed recipes. This is the source
+   * of truth for the "Add Service" list so the app works fully offline / without
+   * an account.
+   */
+  _getLocalRecipePreviews(): RecipePreviewModel[] {
+    try {
+      const allJsonFile = asarRecipesPath('all.json');
+      if (!pathExistsSync(allJsonFile)) {
+        debug('ServerApi::_getLocalRecipePreviews no local all.json');
+        return [];
+      }
+
+      const allJson: IRecipe[] = readJsonSync(allJsonFile);
+      const previews: RecipePreviewModel[] = [];
+      for (const recipe of allJson.filter(r => isAllowedRecipeId(r.id))) {
+        try {
+          previews.push(
+            new RecipePreviewModel({
+              id: recipe.id,
+              name: recipe.name,
+              icon: 'assets/images/fairguard-service.svg',
+              icons: {
+                svg: './assets/images/fairguard-service.svg',
+              },
+              featured: true,
+              aliases: [],
+              isDevRecipe: false,
+            } as IRecipePreview),
+          );
+        } catch (error) {
+          console.error(error);
+        }
+      }
+
+      debug('ServerApi::_getLocalRecipePreviews resolves', previews);
+      return previews;
+    } catch (error) {
+      console.error('Could not build local recipe previews', error);
+      return [];
+    }
+  }
+
+  /**
+   * Merge the remote recipe previews with our local ones. When the upstream
+   * server is unreachable (or returns nothing we allow) the local previews are
+   * the only entries, which is exactly what FairGuard needs.
+   */
+  _mergePreviews(remote: IRecipePreview[]): RecipePreviewModel[] {
+    const local = this._getLocalRecipePreviews();
+    const seen = new Set(local.map(preview => preview.id));
+    const remoteAllowed = remote.filter(
+      recipe => isAllowedRecipeId(recipe.id) && !seen.has(recipe.id),
+    );
+
+    const merged: RecipePreviewModel[] = [...local];
+    for (const preview of this._mapRecipePreviewModel(remoteAllowed)) {
+      if (preview) merged.push(preview);
+    }
+
+    return merged;
+  }
+
   async getRecipePreviews() {
-    const request = await sendAuthRequest(`${apiBase()}/recipes`);
-    if (!request.ok) throw new Error(request.statusText);
-    const data = await request.json();
-    const recipePreviews = this._mapRecipePreviewModel(data);
+    let data: IRecipePreview[] = [];
+    try {
+      const request = await sendAuthRequest(`${apiBase()}/recipes`);
+      if (request.ok) {
+        data = await request.json();
+      }
+    } catch (error) {
+      debug('ServerApi::getRecipes remote failed, using local only', error);
+    }
+
+    const recipePreviews = this._mergePreviews(data);
     debug('ServerApi::getRecipes resolves', recipePreviews);
     return recipePreviews;
   }
 
   async getFeaturedRecipePreviews() {
-    const request = await sendAuthRequest(`${apiBase()}/recipes/popular`);
-    if (!request.ok) throw new Error(request.statusText);
+    let data: IRecipePreview[] = [];
+    try {
+      const request = await sendAuthRequest(`${apiBase()}/recipes/popular`);
+      if (request.ok) {
+        data = await request.json();
+      }
+    } catch (error) {
+      debug(
+        'ServerApi::getFeaturedRecipes remote failed, using local only',
+        error,
+      );
+    }
 
-    const data = await request.json();
-    // data = this._addLocalRecipesToPreviews(data);
-
-    const recipePreviews = this._mapRecipePreviewModel(data);
+    const recipePreviews = this._mergePreviews(data);
     debug('ServerApi::getFeaturedRecipes resolves', recipePreviews);
     return recipePreviews;
   }
 
   async searchRecipePreviews(needle: string) {
-    const url = `${apiBase()}/recipes/search?needle=${needle}`;
-    const request = await sendAuthRequest(url);
-    if (!request.ok) throw new Error(request.statusText);
+    let data: IRecipePreview[] = [];
+    try {
+      const url = `${apiBase()}/recipes/search?needle=${needle}`;
+      const request = await sendAuthRequest(url);
+      if (request.ok) {
+        data = await request.json();
+      }
+    } catch (error) {
+      debug('ServerApi::searchRecipePreviews remote failed', error);
+    }
 
-    const data = await request.json();
-    const recipePreviews = this._mapRecipePreviewModel(data);
+    const recipePreviews = this._mergePreviews(data);
     debug('ServerApi::searchRecipePreviews resolves', recipePreviews);
     return recipePreviews;
   }

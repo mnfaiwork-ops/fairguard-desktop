@@ -1,4 +1,8 @@
-$raw-theme-brand-primary: '114,102,240';
+// FairGuard brand accent: green. Chosen because the product is a coaching
+// companion for WhatsApp (green is the service's own colour) and because
+// "guard" reads as safe / calm. Light theme uses the deeper teal so text and
+// controls keep AA contrast on white; see DESIGN.md for the palette table.
+$raw-theme-brand-primary: '18,140,126';
 $raw-theme-brand-success: '92,184,92';
 $raw-theme-brand-info: '91,192,222';
 $raw-theme-brand-warning: '255,159,0';

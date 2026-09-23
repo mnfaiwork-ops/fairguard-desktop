@@ -5,7 +5,9 @@ import { defineMessages } from 'react-intl';
 
 import { shiftKey } from './environment';
 
-export const DEFAULT_ACCENT_COLOR = '#7367F0';
+// FairGuard accent: green (see DESIGN.md). Used for the runtime accent colour
+// (buttons, active states, progress bars) in the default light theme.
+export const DEFAULT_ACCENT_COLOR = '#128C7E';
 
 export const CHECK_INTERVAL = ms('1h'); // How often should we perform checks
 
@@ -610,8 +612,11 @@ export const DEFAULT_APP_SETTINGS = {
   enableGPUAcceleration: true,
   enableGlobalHideShortcut: false,
 
-  // Ferdium specific options
-  server: LIVE_FERDIUM_API,
+  // FairGuard specific options
+  // FairGuard runs without an account out of the box: the bundled local server
+  // backs the "Use without an Account" flow, so we never point at the upstream
+  // Ferdium API (which would show the "Internal Ferdium Server" login page).
+  server: LOCAL_SERVER,
   predefinedTodoServer: TODO_TODOIST_URL,
   autohideMenuBar: false,
   isLockingFeatureEnabled: false,

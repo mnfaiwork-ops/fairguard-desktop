@@ -21,10 +21,6 @@
     }
   }
 
-  .welcome__featured-services {
-    background: $dark-theme-gray-dark;
-  }
-
   .legal {
     color: $dark-theme-text-color;
 
@@ -44,7 +40,9 @@
 }
 
 .auth {
-  background: $dark-theme-gray-darkest;
+  // Light theme default: neutral off-white base, not the old dark gradient.
+  // The `theme__dark` block above overrides this for dark mode (DESIGN.md).
+  background: $theme-gray-lightest;
   display: flex;
   justify-content: center;
 

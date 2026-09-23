@@ -9,16 +9,7 @@ interface IProps extends Partial<StoresProps> {}
 @observer
 class WelcomeScreen extends Component<IProps> {
   render(): ReactElement {
-    const { user, recipePreviews } = this.props.stores!;
-
-    return (
-      <Welcome
-        loginRoute={user.loginRoute}
-        signupRoute={user.signupRoute}
-        changeServerRoute={user.changeServerRoute}
-        recipes={recipePreviews.featured}
-      />
-    );
+    return <Welcome />;
   }
 }
 

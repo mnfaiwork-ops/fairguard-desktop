@@ -3,7 +3,7 @@
   "productName": "FairGuard",
   "desktopName": "fairguard.desktop",
   "appId": "org.fairguard.fairguard-desktop",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "FairGuard — coach kecepatan chat untuk nomor WhatsApp organik.",
   "author": "FairGuard (mnfaiwork-ops) <mnfai.work@gmail.com>",
   "license": "Apache-2.0",

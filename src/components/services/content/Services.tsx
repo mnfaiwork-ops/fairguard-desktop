@@ -122,8 +122,8 @@ class Services extends Component<IProps, IState> {
           <Appear transitionName="slideUp">
             <div className="services__no-service">
               <img
-                src="./assets/images/logo-beard-only.svg"
-                alt="Logo"
+                src="./assets/images/logo.svg"
+                alt="FairGuard"
                 style={{ maxHeight: '50vh' }}
               />
               <Appear transitionName="slideUp">
